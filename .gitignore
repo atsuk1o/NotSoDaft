@@ -1,0 +1,7 @@
+target/
+*.class
+application.properties
+applcation-prod.properties
+*.env
+.idea/
+*.iml
