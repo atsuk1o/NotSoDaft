@@ -1,0 +1,16 @@
+.property-card{
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+.property-card:hover{
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.12) !important;
+}
+.bedroom-btn.active{
+    background-color: #198754 !important;
+    color: white !important;
+    border-color: #198754 !important;
+}
+.filters-panel{
+    box-shadow: 2px 0 8px rgba(0,0,0,0.05);
+}
