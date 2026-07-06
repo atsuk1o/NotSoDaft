@@ -25,7 +25,7 @@ public class User{
     private boolean enabled = true;
 
     public enum Role{
-        TENANT, LANDLORD, ADMIN
+        TENANT, ADMIN
     }
 
     public Long getId(){ return id; }

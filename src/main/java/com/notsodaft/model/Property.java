@@ -2,7 +2,6 @@ package com.notsodaft.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Table(name = "properties")
@@ -30,10 +29,6 @@ public class Property{
     private boolean verified = false;
     private boolean active = true;
 
-    @ManyToOne
-    @JoinColumn(name = "landlord_id")
-    private User landlord;
-
     private LocalDateTime createdAt = LocalDateTime.now();
 
     public enum LeaseType{
@@ -50,7 +45,7 @@ public class Property{
     public String getCounty(){ return county; }
     public void setCounty(String county){ this.county = county; }
     public double getPricePerMonth(){ return pricePerMonth; }
-    public void setPricePerMonth(double pricePerMonth){ this.pricePerMonth = pricePerMonth; }
+    public void setPricePerMonth(double price){ this.pricePerMonth = price; }
     public int getBedrooms(){ return bedrooms; }
     public void setBedrooms(int bedrooms){ this.bedrooms = bedrooms; }
     public double getLat(){ return lat; }
@@ -63,7 +58,5 @@ public class Property{
     public void setVerified(boolean verified){ this.verified = verified; }
     public boolean isActive(){ return active; }
     public void setActive(boolean active){ this.active = active; }
-    public User getLandlord(){ return landlord; }
-    public void setLandlord(User landlord){ this.landlord = landlord; }
     public LocalDateTime getCreatedAt(){ return createdAt; }
 }

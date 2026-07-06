@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <title>Admin Dashboard - NotSoDaft</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"/>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"/>
+    </head>
+    <body class="bg-light">
+
+    <nav class="navbar navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold" th:href="@{/}"> NotSoDaft</a>
+            <span class="navbar-text text-warning fw-bold"> Admin Panel</span>
+            <a th:href="@{/logout}" class="btn btn-outline-light btn-sm">Logout</a>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <div class="card border-warning">
+                    <div class="card-body text-center">
+                        <h2 class="fw-bold text-warning" th:text="${pending.size()}">0</h2>
+                        <p class="mb-0 text-muted">Pending Reviews</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-success">
+                    <div class="card-body text-center">
+                        <h2 class="fw-bold text-success" th:text="${approved.size()}">0</h2>
+                        <p class="mb-0 text-muted">Approved Reviews</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <h5 class="fw-bold mb-3"> Pending Reviews</h5>
+        <div th:if="${pending.empty}" class="alert alert-info">No pending reviews.</div>
+        <div th:each="review : ${pending}" class="card mb-3 border-warning shadow-sm">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <h6 class="fw-bold mb-1">
+                            <i class="bi bi-geo-alt"></i>
+                            <span th:text="${review.address}"></span>
+                            <code class="ms-2" th:text="${review.eircode}"></code>
+                        </h6>
+                        <p class="text-muted small mb-2">
+                            By <strong th:text="${review.author.name}"></strong>
+                            · <span th:text="${review.county}"></span>
+                            · <span th:text="${review.createdAt}"></span>
+                        </p>
+                        <p class="mb-2" th:text="${review.reviewText}"></p>
+                        <div class="d-flex gap-3 small text-muted">
+                            <span> Dampness: <strong th:text="${review.dampnessScore}"></strong>/5</span>
+                            <span> Heating: <strong th:text="${review.heatingScore}"></strong>/5</span>
+                            <span> Maintenance: <strong th:text="${review.maintenanceScore}"></strong>/5</span>
+                            <span> Overall: <strong th:text="${review.overallScore}"></strong>/5</span>
+                        </div>
+                    </div>
+                    <div class="col-md-4 d-flex flex-column gap-2 justify-content-center">
+                        <form th:action="@{/admin/reviews/{id}/approve(id=${review.id})}" method="post">
+                            <button type="submit" class="btn btn-success w-100">
+                                <i class="bi bi-check-circle"></i> Approve
+                            </button>
+                        </form>
+                        <form th:action="@{/admin/reviews/{id}/reject(id=${review.id})}" method="post">
+                            <button type="submit" class="btn btn-danger w-100">
+                                <i class="bi bi-x-circle"></i> Reject
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h5 class="fw-bold mt-4 mb-3">Approved Reviews</h5>
+        <div th:if="${approved.empty}" class="alert alert-info">No approved reviews yet.</div>
+        <div th:each="review : ${approved}" class="card mb-3 border-success shadow-sm">
+            <div class="card-body">
+                <h6 class="fw-bold mb-1">
+                    <i class="bi bi-geo-alt"></i>
+                    <span th:text="${review.address}"></span>
+                    <code class="ms-2" th:text="${review.eircode}"></code>
+                </h6>
+                <p class="text-muted small mb-2">
+                    By <strong th:text="${review.author.name}"></strong>
+                    · <span th:text="${review.county}"></span>
+                </p>
+                <p class="mb-2" th:text="${review.reviewText}"></p>
+                <div class="d-flex gap-3 small text-muted">
+                    <span> <strong th:text="${review.dampnessScore}"></strong>/5</span>
+                    <span> <strong th:text="${review.heatingScore}"></strong>/5</span>
+                    <span> <strong th:text="${review.maintenanceScore}"></strong>/5</span>
+                    <span> <strong th:text="${review.overallScore}"></strong>/5</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    </body>
+</html>

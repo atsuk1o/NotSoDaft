@@ -16,4 +16,12 @@ public class PropertyService{
     public List<Property> getVerifiedProperties(){
         return propertyRepository.findByVerifiedTrueAndActiveTrue();
     }
+
+    public List<Property> getPendingProperties(){
+        return propertyRepository.findByVerifiedFalse();
+    }
+
+    public Property save(Property property){
+        return propertyRepository.save(property);
+    }
 }
