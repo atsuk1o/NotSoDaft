@@ -1,0 +1,9 @@
+package com.notsodaft.repository;
+
+import com.notsodaft.model.ReviewPhoto;
+import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.List;
+
+public interface ReviewPhotoRepository extends JpaRepository<ReviewPhoto, Long>{
+    List<ReviewPhoto> findByReviewId(Long reviewId);
+}

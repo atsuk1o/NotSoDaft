@@ -2,6 +2,8 @@ package com.notsodaft.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "reviews")
@@ -15,6 +17,8 @@ public class Review{
 
     private String address;
     private String county;
+    private double lat;
+    private double lng;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -24,6 +28,9 @@ public class Review{
     private int heatingScore;
     private int maintenanceScore;
     private int overallScore;
+
+    @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<ReviewPhoto> photos = new ArrayList<>();
 
     @Column(length = 2000)
     private String reviewText;
@@ -44,6 +51,10 @@ public class Review{
     public void setAddress(String address){ this.address = address; }
     public String getCounty(){ return county; }
     public void setCounty(String county){ this.county = county; }
+    public double getLat(){ return lat; }
+    public void setLat(double lat){ this.lat = lat; }
+    public double getLng(){ return lng; }
+    public void setLng(double lng){ this.lng = lng; }
     public User getAuthor(){ return author; }
     public void setAuthor(User author){ this.author = author; }
     public int getDampnessScore(){ return dampnessScore; }
@@ -59,4 +70,6 @@ public class Review{
     public ReviewStatus getStatus(){ return status; }
     public void setStatus(ReviewStatus status){ this.status = status; }
     public LocalDateTime getCreatedAt(){ return createdAt; }
+    public List<ReviewPhoto> getPhotos(){ return photos; }
+    public void setPhotos(List<ReviewPhoto> photos){ this.photos = photos; }
 }

@@ -39,4 +39,25 @@ public class AdminController{
         redirectAttributes.addFlashAttribute("success", "Review rejected.");
         return "redirect:/admin/dashboard";
     }
+
+    @GetMapping("/reviews/{id}/edit")
+    public String editForm(@PathVariable Long id, Model model){
+        model.addAttribute("review", reviewService.getById(id));
+        return "admin/edit";
+    }
+
+    @PostMapping("/reviews/{id}/edit")
+    public String editReview(@PathVariable Long id,
+                            @RequestParam String eircode,
+                            @RequestParam String address,
+                            @RequestParam String reviewText,
+                            RedirectAttributes redirectAttributes){
+        Review review = reviewService.getById(id);
+        review.setEircode(eircode);
+        review.setAddress(address);
+        review.setReviewText(reviewText);
+        reviewService.save(review);
+        redirectAttributes.addFlashAttribute("success", "Review updated.");
+        return "redirect:/admin/dashboard";
+    }
 }

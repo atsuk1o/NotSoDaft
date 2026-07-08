@@ -27,6 +27,7 @@ public class SecurityConfig{
             .csrf(csrf -> csrf.disable()).authorizeHttpRequests(auth -> auth
                 .requestMatchers("/", "/properties", "/properties/**", "/register", "/login", "/css/**", "/js/**").permitAll()
                 .requestMatchers("/admin/**").hasRole("ADMIN")
+                .requestMatchers("/", "/uploads/**", "/register", "/login", "/css/**", "/js/**").permitAll()
                 .anyRequest().authenticated()
             ).formLogin(form -> form.loginPage("/login").defaultSuccessUrl("/", true).permitAll()).logout(logout -> logout.logoutSuccessUrl("/").permitAll());
         return http.build();

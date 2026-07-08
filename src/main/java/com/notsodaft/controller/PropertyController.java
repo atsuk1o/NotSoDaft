@@ -1,30 +1,31 @@
 package com.notsodaft.controller;
 
-import com.notsodaft.model.Property;
-import com.notsodaft.service.PropertyService;
+import com.notsodaft.model.Review;
+import com.notsodaft.service.ReviewService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 
 @Controller
-public class PropertyController{
-    private final PropertyService propertyService;
+public class PropertyController {
+
+    private final ReviewService reviewService;
     private final ObjectMapper objectMapper;
 
-    public PropertyController(PropertyService propertyService, ObjectMapper objectMapper){
-        this.propertyService = propertyService;
+    public PropertyController(ReviewService reviewService, ObjectMapper objectMapper) {
+        this.reviewService = reviewService;
         this.objectMapper = objectMapper;
     }
 
     @GetMapping("/")
-    public String index(Model model){
+    public String index(Model model) {
         try{
-            List<Property> properties = propertyService.getVerifiedProperties();
-            model.addAttribute("propertiesJson", objectMapper.writeValueAsString(properties));
+            List<Review> approved = reviewService.getApprovedReviews();
+            model.addAttribute("reviewsJson", objectMapper.writeValueAsString(approved));
         }catch (Exception e){
-            model.addAttribute("propertiesJson", "[]");
+            model.addAttribute("reviewsJson", "[]");
         }
         return "index";
     }

@@ -6,6 +6,7 @@
         <title>Submit Review - NotSoDaft</title>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"/>
         <link rel="stylesheet" th:href="@{/css/style.css}"/>
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
     </head>
     <body class="bg-light">
     <nav class="navbar navbar-dark bg-dark">
@@ -25,22 +26,40 @@
                         <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
                         <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
 
-                        <form th:action="@{/reviews/submit}" method="post">
-                            <div class="mb-3">
-                                <label class="form-label fw-semibold">Eircode</label>
-                                <input type="text" name="eircode" class="form-control"
-                                    placeholder="e.g. D02 XY12" required
-                                    oninput="validateEircode(this)"/>
-                                <div class="form-text" id="eircodeHint">Format: A99 XXXX</div>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label fw-semibold">Address</label>
-                                <input type="text" name="address" class="form-control"
+                        <form th:action="@{/reviews/submit}" method="post" enctype="multipart/form-data" onsubmit="return confirmSubmit()">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Eircode</label>
+                            <input type="text" name="eircode" id="eircodeInput" class="form-control"
+                                placeholder="e.g. D01 AB12" required
+                                oninput="validateEircode(this)"/>
+                            <div class="form-text" id="eircodeHint">Format: A99 XXXX</div>
+                        </div>
+
+                        <input type="hidden" name="lat" id="latInput"/>
+                        <input type="hidden" name="lng" id="lngInput"/>
+
+                        <div id="miniMapContainer" style="display:none;" class="mb-3">
+                            <label class="form-label fw-semibold small text-success">📍 Location found — confirm this is correct:</label>
+                            <div id="miniMap" style="height: 200px; border-radius: 8px; border: 2px solid #198754;"></div>
+                            <div class="form-text text-success" id="locationFound"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Address</label>
+                            <div class="d-flex gap-2">
+                                <input type="text" name="address" id="addressInput" class="form-control"
                                     placeholder="e.g. 14 Grafton Street, Dublin 2" required/>
+                                <button type="button" class="btn btn-outline-success" onclick="lookupAddress()">
+                                    Find
+                                </button>
+                                <button type="button" class="btn btn-outline-danger" id="clearBtn"
+                                        style="display:none;" onclick="clearLocation()">
+                                    ✕
+                                </button>
                             </div>
+                        </div>
                             <div class="mb-3">
                                 <label class="form-label fw-semibold">County</label>
-                                <select name="county" class="form-select" required>
+                                <select id="countySelect" class="form-select" required>
                                     <option value="">Select county...</option>
                                     <option>Dublin</option>
                                     <option>Cork</option>
@@ -69,6 +88,7 @@
                                     <option>Monaghan</option>
                                     <option>Leitrim</option>
                                 </select>
+                                <input type="hidden" id="countyHidden" name="county"/>
                             </div>
                             <hr/>
                             <h6 class="fw-bold mb-3">Rate the Property</h6>
@@ -127,6 +147,11 @@
                                 <textarea name="reviewText" class="form-control" rows="5"
                                         placeholder="Describe your experience living here..." required></textarea>
                             </div>
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold">Photos <span class="text-muted small">(optional, up to 5)</span></label>
+                                <input type="file" name="photos" class="form-control" multiple accept="image/*"/>
+                                <div class="form-text">JPG, PNG, max 10MB each</div>
+                            </div>
                             <button type="submit" class="btn btn-success w-100">
                                 Submit for Review
                             </button>
@@ -137,21 +162,115 @@
         </div>
     </div>
 
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
+    let miniMap = null;
+    let miniMarker = null;
+
     function validateEircode(input) {
         const pattern = /^[AC-FHKNPRTV-Y][0-9]{2}\s?[AC-FHKNPRTV-Y0-9]{4}$/i;
         const hint = document.getElementById('eircodeHint');
-        if (pattern.test(input.value.trim())){
+        if (pattern.test(input.value.trim())) {
             input.classList.remove('is-invalid');
             input.classList.add('is-valid');
-            hint.textContent = 'Valid Eircode';
+            hint.textContent = 'Valid format';
             hint.className = 'form-text text-success';
-        }else{
+        } else {
             input.classList.remove('is-valid');
             input.classList.add('is-invalid');
             hint.textContent = 'Format: A99 XXXX (e.g. D02 XY12)';
             hint.className = 'form-text text-danger';
         }
+    }
+
+    function lookupAddress() {
+        const address = document.getElementById('addressInput').value.trim();
+        if (!address) {
+            alert('Please enter an address first.');
+            return;
+        }
+
+        const query = encodeURIComponent(address + ', Ireland');
+        fetch(`https://nominatim.openstreetmap.org/search?q=${query}&format=json&limit=1&addressdetails=1&countrycodes=ie`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.length === 0) {
+                    alert('Address not found. Please try a more specific address.');
+                    return;
+                }
+                const lat = parseFloat(data[0].lat);
+                const lng = parseFloat(data[0].lon);
+                const addr = data[0].address;
+
+                const road = addr.road || addr.pedestrian || '';
+                const houseNumber = addr.house_number || '';
+                const city = addr.city || addr.town || addr.village || '';
+                const fullAddress = [houseNumber, road, city].filter(Boolean).join(', ');
+
+                const countyMap = {
+                    'Dublin': 'Dublin', 'Cork': 'Cork', 'Galway': 'Galway',
+                    'Limerick': 'Limerick', 'Waterford': 'Waterford', 'Kilkenny': 'Kilkenny',
+                    'Wexford': 'Wexford', 'Kerry': 'Kerry', 'Clare': 'Clare',
+                    'Tipperary': 'Tipperary', 'Meath': 'Meath', 'Kildare': 'Kildare',
+                    'Wicklow': 'Wicklow', 'Louth': 'Louth', 'Donegal': 'Donegal',
+                    'Sligo': 'Sligo', 'Mayo': 'Mayo', 'Roscommon': 'Roscommon',
+                    'Longford': 'Longford', 'Westmeath': 'Westmeath', 'Offaly': 'Offaly',
+                    'Laois': 'Laois', 'Carlow': 'Carlow', 'Cavan': 'Cavan',
+                    'Monaghan': 'Monaghan', 'Leitrim': 'Leitrim'
+                };
+
+                const countyRaw = addr.county || addr.state_district || '';
+                const countyClean = countyRaw.replace('County ', '').trim();
+                const countySelect = document.getElementById('countySelect');
+
+                document.getElementById('latInput').value = lat;
+                document.getElementById('lngInput').value = lng;
+                document.getElementById('locationFound').textContent = data[0].display_name;
+                document.getElementById('miniMapContainer').style.display = 'block';
+                document.getElementById('clearBtn').style.display = 'inline-block';
+
+                if (fullAddress) {
+                    document.getElementById('addressInput').value = fullAddress;
+                    document.getElementById('addressInput').readOnly = true;
+                }
+
+                if (countyMap[countyClean]) {
+                    countySelect.value = countyMap[countyClean];
+                    countySelect.disabled = true;
+                    document.getElementById('countyHidden').value = countyMap[countyClean];                
+                }
+
+                if (!miniMap) {
+                    miniMap = L.map('miniMap').setView([lat, lng], 16);
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(miniMap);
+                    miniMarker = L.marker([lat, lng]).addTo(miniMap);
+                } else {
+                    miniMap.setView([lat, lng], 16);
+                    miniMarker.setLatLng([lat, lng]);
+                }
+                setTimeout(() => miniMap.invalidateSize(), 100);
+            }).catch(() => alert('Error looking up address. Please try again.'));
+    }
+
+    function clearLocation() {
+        document.getElementById('latInput').value = '';
+        document.getElementById('lngInput').value = '';
+        document.getElementById('addressInput').value = '';
+        document.getElementById('addressInput').readOnly = false;
+        document.getElementById('countySelect').value = '';
+        document.getElementById('countySelect').disabled = false;
+        document.getElementById('miniMapContainer').style.display = 'none';
+        document.getElementById('locationFound').textContent = '';
+        document.getElementById('clearBtn').style.display = 'none';
+    }
+
+    function confirmSubmit() {
+        const lat = document.getElementById('latInput').value;
+        if (!lat) {
+            alert('Please click "Find" to verify your Eircode location on the map first.');
+            return false;
+        }
+        return confirm('Submit this review for admin approval?');
     }
     </script>
     </body>
