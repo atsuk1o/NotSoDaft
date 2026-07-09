@@ -5,3 +5,4 @@ applcation-prod.properties
 *.env
 .idea/
 *.iml
+uploads/

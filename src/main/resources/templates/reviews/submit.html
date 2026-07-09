@@ -191,7 +191,7 @@
         }
 
         const query = encodeURIComponent(address + ', Ireland');
-        fetch(`https://nominatim.openstreetmap.org/search?q=${query}&format=json&limit=1&addressdetails=1&countrycodes=ie`)
+        fetch(`https://nominatim.openstreetmap.org/search?q=${query}&format=json&limit=1&addressdetails=1&countrycodes=ie&accept-language=en`)
             .then(res => res.json())
             .then(data => {
                 if (data.length === 0) {
@@ -208,7 +208,8 @@
                 const fullAddress = [houseNumber, road, city].filter(Boolean).join(', ');
 
                 const countyMap = {
-                    'Dublin': 'Dublin', 'Cork': 'Cork', 'Galway': 'Galway',
+                    'Dublin': 'Dublin',  'Dublin City': 'Dublin','Dún Laoghaire-Rathdown': 'Dublin', 
+                    'Fingal': 'Dublin', 'South Dublin': 'Dublin','Cork': 'Cork', 'Galway': 'Galway',
                     'Limerick': 'Limerick', 'Waterford': 'Waterford', 'Kilkenny': 'Kilkenny',
                     'Wexford': 'Wexford', 'Kerry': 'Kerry', 'Clare': 'Clare',
                     'Tipperary': 'Tipperary', 'Meath': 'Meath', 'Kildare': 'Kildare',

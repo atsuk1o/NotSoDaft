@@ -1,6 +1,8 @@
 package com.notsodaft.model;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +24,7 @@ public class Review{
 
     @ManyToOne
     @JoinColumn(name = "user_id")
+    @JsonIgnore
     private User author;
 
     private int dampnessScore;
@@ -30,6 +33,7 @@ public class Review{
     private int overallScore;
 
     @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JsonManagedReference
     private List<ReviewPhoto> photos = new ArrayList<>();
 
     @Column(length = 2000)

@@ -51,11 +51,15 @@ public class AdminController{
                             @RequestParam String eircode,
                             @RequestParam String address,
                             @RequestParam String reviewText,
-                            RedirectAttributes redirectAttributes){
+                            @RequestParam(required = false) Double lat,
+                            @RequestParam(required = false) Double lng,
+                            RedirectAttributes redirectAttributes) {
         Review review = reviewService.getById(id);
         review.setEircode(eircode);
         review.setAddress(address);
         review.setReviewText(reviewText);
+        if (lat != null) review.setLat(lat);
+        if (lng != null) review.setLng(lng);
         reviewService.save(review);
         redirectAttributes.addFlashAttribute("success", "Review updated.");
         return "redirect:/admin/dashboard";

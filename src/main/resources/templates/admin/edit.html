@@ -5,13 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <title>Edit Review - NotSoDaft</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 </head>
 <body class="bg-light">
 <nav class="navbar navbar-dark bg-dark">
     <div class="container-fluid">
-        <a class="navbar-brand fw-bold" th:href="@{/}"> NotSoDaft</a>
-        <span class="navbar-text text-warning fw-bold"> Admin Panel</span>
-        <a th:href="@{/admin/dashboard}" class="btn btn-outline-light btn-sm">← Back</a>
+        <a class="navbar-brand fw-bold" th:href="@{/}">NotSoDaft</a>
+        <span class="navbar-text text-warning fw-bold">Admin Panel</span>
+        <a th:href="@{/admin/dashboard}" class="btn btn-outline-light btn-sm">Back</a>
     </div>
 </nav>
 
@@ -30,10 +31,25 @@
                                    th:value="${review.eircode}" required/>
                         </div>
 
+                        <input type="hidden" name="lat" id="latInput" th:value="${review.lat}"/>
+                        <input type="hidden" name="lng" id="lngInput" th:value="${review.lng}"/>
+
                         <div class="mb-3">
                             <label class="form-label fw-semibold">Address</label>
-                            <input type="text" name="address" class="form-control"
-                                   th:value="${review.address}" required/>
+                            <div class="d-flex gap-2">
+                                <input type="text" name="address" id="addressInput" class="form-control"
+                                       th:value="${review.address}" required/>
+                                <button type="button" class="btn btn-outline-success" onclick="lookupAddress()">
+                                    Find
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="miniMapContainer" class="mb-3"
+                             th:style="${review.lat != 0} ? 'display:block' : 'display:none'">
+                            <label class="form-label fw-semibold small text-success">📍 Current location:</label>
+                            <div id="miniMap" style="height: 200px; border-radius: 8px; border: 2px solid #198754;"></div>
+                            <div class="form-text text-success" id="locationFound"></div>
                         </div>
 
                         <div class="mb-3">
@@ -52,5 +68,55 @@
         </div>
     </div>
 </div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script th:inline="javascript">
+let miniMap = null;
+let miniMarker = null;
+const initLat = /*[[${review.lat}]]*/ 53.1424;
+const initLng = /*[[${review.lng}]]*/ -7.6921;
+
+window.addEventListener('load', () => {
+    if (initLat && initLat !== 0) {
+        initMap(initLat, initLng);
+    }
+});
+
+function initMap(lat, lng) {
+    if (!miniMap) {
+        miniMap = L.map('miniMap').setView([lat, lng], 16);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(miniMap);
+        miniMarker = L.marker([lat, lng]).addTo(miniMap);
+    } else {
+        miniMap.setView([lat, lng], 16);
+        miniMarker.setLatLng([lat, lng]);
+    }
+    setTimeout(() => miniMap.invalidateSize(), 100);
+}
+
+function lookupAddress() {
+    const address = document.getElementById('addressInput').value.trim();
+    if (!address) return;
+
+    const query = encodeURIComponent(address + ', Ireland');
+    fetch(`https://nominatim.openstreetmap.org/search?q=${query}&format=json&limit=1&countrycodes=ie`)
+        .then(res => res.json())
+        .then(data => {
+            if (data.length === 0) {
+                alert('Address not found.');
+                return;
+            }
+            const lat = parseFloat(data[0].lat);
+            const lng = parseFloat(data[0].lon);
+
+            document.getElementById('latInput').value = lat;
+            document.getElementById('lngInput').value = lng;
+            document.getElementById('locationFound').textContent = data[0].display_name;
+            document.getElementById('miniMapContainer').style.display = 'block';
+            initMap(lat, lng);
+        })
+        .catch(() => alert('Error looking up address.'));
+}
+</script>
 </body>
 </html>

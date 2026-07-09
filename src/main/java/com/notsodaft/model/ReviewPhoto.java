@@ -1,6 +1,7 @@
 package com.notsodaft.model;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
 @Table(name = "review_photos")
@@ -11,6 +12,7 @@ public class ReviewPhoto{
 
     @ManyToOne
     @JoinColumn(name = "review_id")
+    @JsonBackReference
     private Review review;
 
     private String fileName;

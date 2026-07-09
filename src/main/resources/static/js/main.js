@@ -11,85 +11,138 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
 let markers = [];
 
-function makeIcon() {
+function makeIcon(count) {
+    const multiple = count > 1;
     return L.divIcon({
         className: '',
-        html: `<div style="
-            background: #198754;
-            color: white; border-radius: 50% 50% 50% 0;
-            width: 32px; height: 32px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 14px; transform: rotate(-45deg);
-            border: 2px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.3);">
-            <span style="transform:rotate(45deg)">📍</span>
+        html: `<div style="position:relative; width:36px; height:36px;">
+            <div style="
+                background: ${multiple ? '#0d6efd' : '#198754'};
+                border: 3px solid white;
+                border-radius: 50% 50% 50% 0;
+                width: 36px; height: 36px;
+                transform: rotate(-45deg);
+                box-shadow: 0 3px 10px rgba(0,0,0,0.25);
+            "></div>
+            <div style="
+                position: absolute;
+                top: 50%; left: 50%;
+                transform: translate(-50%, -60%);
+                font-size: 14px;
+            ">${multiple ? count : '🏠'}</div>
         </div>`,
-        iconSize: [32, 32], iconAnchor: [16, 32], popupAnchor: [0, -32]
+        iconSize: [36, 36],
+        iconAnchor: [18, 36],
+        popupAnchor: [0, -36]
     });
+}
+
+function groupByEircode(data) {
+    const groups = {};
+    data.forEach(r => {
+        if (!r.lat || !r.lng) return;
+        if (!groups[r.eircode]) {
+            groups[r.eircode] = {
+                eircode: r.eircode,
+                address: r.address,
+                county: r.county,
+                lat: r.lat,
+                lng: r.lng,
+                reviews: []
+            };
+        }
+        groups[r.eircode].reviews.push(r);
+    });
+    return Object.values(groups);
 }
 
 function renderMarkers(data) {
     markers.forEach(m => map.removeLayer(m));
     markers = [];
-    data.forEach(r => {
-        const marker = L.marker([53.1424, -7.6921], { icon: makeIcon() });
-        marker.bindTooltip(`<strong>${r.address}</strong><br>${r.eircode}`, {
-            direction: 'top', offset: [0, -30]
-        });
-        marker.on('click', () => showModal(r));
+
+    const groups = groupByEircode(data);
+
+    groups.forEach(g => {
+        const count = g.reviews.length;
+        const marker = L.marker([g.lat, g.lng], { icon: makeIcon(count) });
+        marker.bindTooltip(
+            `<strong>${g.address}</strong><br>${g.eircode}<br>${count} review${count > 1 ? 's' : ''}`,
+            { direction: 'top', offset: [0, -30] }
+        );
+        marker.on('click', () => showModal(g));
         marker.addTo(map);
         markers.push(marker);
     });
+
     document.getElementById('resultLabel').textContent =
-        `${data.length} review${data.length === 1 ? '' : 's'}`;
+        `${groups.length} location${groups.length === 1 ? '' : 's'} · ${data.length} review${data.length === 1 ? '' : 's'}`;
 }
 
 function renderGrid(data) {
     const grid = document.getElementById('propertyGrid');
-    grid.innerHTML = data.length === 0
+    const groups = groupByEircode(data);
+
+    grid.innerHTML = groups.length === 0
         ? '<div class="col-12 text-center text-muted py-5">No approved reviews yet.</div>'
-        : data.map(r => `
+        : groups.map(g => `
         <div class="col-md-4 col-sm-6">
-            <div class="card h-100 shadow-sm property-card" onclick='showModal(${JSON.stringify(r).replace(/'/g, "&#39;")})'>
+            <div class="card h-100 shadow-sm property-card" onclick='showModal(${JSON.stringify(g).replace(/'/g, "&#39;")})'>
                 <div class="card-body">
-                    <h6 class="mb-1">${r.address}</h6>
-                    <p class="text-muted small mb-1"><code>${r.eircode}</code> · ${r.county}</p>
-                    <div class="d-flex gap-2 small text-muted">
-                        <span> ${r.dampnessScore}/5</span>
-                        <span> ${r.heatingScore}/5</span>
-                        <span> ${r.maintenanceScore}/5</span>
-                        <span> ${r.overallScore}/5</span>
-                    </div>
+                    <h6 class="mb-1">${g.address}</h6>
+                    <p class="text-muted small mb-1"><code>${g.eircode}</code> · ${g.county}</p>
+                    <p class="text-muted small mb-0">${g.reviews.length} review${g.reviews.length > 1 ? 's' : ''}</p>
+                </div>
+                <div class="card-footer">
+                    <span class="small text-muted">
+                        Avg overall: <strong>${(g.reviews.reduce((s, r) => s + r.overallScore, 0) / g.reviews.length).toFixed(1)}/5</strong>
+                    </span>
                 </div>
             </div>
         </div>`).join('');
 }
 
-function showModal(r) {
-    document.getElementById('modalTitle').textContent = r.address + ' · ' + r.eircode;
+function showModal(g) {
+    document.getElementById('modalTitle').textContent = g.address + ' · ' + g.eircode;
 
-    const photos = r.photos && r.photos.length > 0
-        ? r.photos.map(p => `<img src="${p.filePath}" class="img-fluid rounded mb-2" style="max-height:200px; object-fit:cover; width:100%"/>`).join('')
-        : '<p class="text-muted small">No photos submitted.</p>';
+    const reviewsHtml = g.reviews.map((r, i) => `
+        <div class="border rounded p-3 mb-3">
+            <div class="d-flex justify-content-between mb-2">
+                <span class="badge bg-success">Review #${i + 1}</span>
+                <small class="text-muted">${new Date(r.createdAt).toLocaleDateString()}</small>
+            </div>
+            ${r.photos && r.photos.length > 0
+                ? `<div class="d-flex flex-wrap gap-2 mb-2">
+                    ${r.photos.map(p => `
+                        <a href="${p.filePath}" target="_blank">
+                            <img src="${p.filePath}"
+                                 style="height:80px; width:80px; object-fit:cover; border-radius:6px; cursor:pointer;"
+                                 onmouseover="this.style.opacity='0.8'"
+                                 onmouseout="this.style.opacity='1'"/>
+                        </a>`).join('')}
+                   </div>`
+                : ''}
+            <p class="mb-2 small">${r.reviewText}</p>
+            <div class="d-flex gap-3 small text-muted flex-wrap">
+                <span>💧 ${r.dampnessScore}/5</span>
+                <span>🔥 ${r.heatingScore}/5</span>
+                <span>🔧 ${r.maintenanceScore}/5</span>
+                <span>⭐ ${r.overallScore}/5</span>
+            </div>
+        </div>`).join('');
+
+    const firstReviewId = g.reviews[0].id;
 
     document.getElementById('modalBody').innerHTML = `
         <div class="row">
-            <div class="col-md-6 border-end">
-                ${photos}
-                <hr/>
-                <p>${r.reviewText}</p>
-                <div class="d-flex gap-3 small text-muted flex-wrap">
-                    <span> Dampness: <strong>${r.dampnessScore}/5</strong></span>
-                    <span> Heating: <strong>${r.heatingScore}/5</strong></span>
-                    <span> Maintenance: <strong>${r.maintenanceScore}/5</strong></span>
-                    <span> Overall: <strong>${r.overallScore}/5</strong></span>
-                </div>
+            <div class="col-md-7 border-end" style="max-height:500px; overflow-y:auto;">
+                ${reviewsHtml}
             </div>
-            <div class="col-md-6">
+            <div class="col-md-5">
                 <h6 class="fw-bold mb-3">Comments</h6>
-                <div id="commentsList" class="mb-3">
-                    <p class="text-muted small">No comments yet.</p>
+                <div id="commentsList" class="mb-3" style="max-height:300px; overflow-y:auto;">
+                    <p class="text-muted small">Loading...</p>
                 </div>
-                <form onsubmit="submitComment(event, ${r.id})">
+                <form onsubmit="submitComment(event, ${firstReviewId})">
                     <div class="mb-2">
                         <input type="text" id="guestName" class="form-control form-control-sm"
                                placeholder="Your name (optional)"/>
@@ -104,7 +157,7 @@ function showModal(r) {
         </div>`;
 
     new bootstrap.Modal(document.getElementById('propertyModal')).show();
-    loadComments(r.id);
+    loadComments(firstReviewId);
 }
 
 function loadComments(reviewId) {
@@ -121,6 +174,10 @@ function loadComments(reviewId) {
                     <strong class="small">${c.guestName || 'Anonymous'}</strong>
                     <p class="mb-0 small">${c.text}</p>
                 </div>`).join('');
+        })
+        .catch(() => {
+            document.getElementById('commentsList').innerHTML =
+                '<p class="text-muted small">Could not load comments.</p>';
         });
 }
 
