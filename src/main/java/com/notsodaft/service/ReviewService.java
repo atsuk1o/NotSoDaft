@@ -41,4 +41,33 @@ public class ReviewService{
         review.setStatus(Review.ReviewStatus.REJECTED);
         reviewRepository.save(review);
     }
+
+    public List<Review> getByAuthorId(Long userId){
+        return reviewRepository.findByAuthorId(userId);
+    }
+
+    public void update(Long id, String eircode, String address, String county, int dampnessScore, int heatingScore, int maintenanceScore, int overallScore, String reviewText, Double lat, Double lng, Review.PropertyType propertyType){
+        Review review = getById(id);
+        review.setEircode(eircode);
+        review.setAddress(address);
+        review.setCounty(county);
+        review.setDampnessScore(dampnessScore);
+        review.setHeatingScore(heatingScore);
+        review.setMaintenanceScore(maintenanceScore);
+        review.setOverallScore(overallScore);
+        review.setReviewText(reviewText);
+        if (lat != null) review.setLat(lat);
+        if (lng != null) review.setLng(lng);
+        review.setPropertyType(propertyType);
+        review.setStatus(Review.ReviewStatus.PENDING);
+        reviewRepository.save(review);
+    }
+
+    public List<Review> getApprovedWithFilters(String county, Review.PropertyType propertyType, String search){
+        return reviewRepository.findApprovedWithFilters(
+            (county != null && !county.isEmpty()) ? county : null,
+            propertyType,
+            (search != null && !search.isEmpty()) ? search : null
+        );
+    }
 }

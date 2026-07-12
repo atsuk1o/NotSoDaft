@@ -28,6 +28,8 @@ public class SecurityConfig{
                 .requestMatchers("/", "/properties", "/properties/**", "/register", "/login", "/css/**", "/js/**").permitAll()
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .requestMatchers("/", "/uploads/**", "/register", "/login", "/css/**", "/js/**").permitAll()
+                .requestMatchers("/reviews/my", "/reviews/*/edit").authenticated()
+                .requestMatchers("/proof/**").authenticated()
                 .anyRequest().authenticated()
             ).formLogin(form -> form.loginPage("/login").defaultSuccessUrl("/", true).permitAll()).logout(logout -> logout.logoutSuccessUrl("/").permitAll());
         return http.build();

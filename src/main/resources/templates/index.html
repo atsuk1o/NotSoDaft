@@ -23,6 +23,9 @@
                         <a class="nav-link" th:href="@{/admin/dashboard}">Admin</a>
                     </li>
                     <li class="nav-item" sec:authorize="isAuthenticated()">
+                        <a class="nav-link" th:href="@{/reviews/my}">My Reviews</a>
+                    </li>
+                    <li class="nav-item" sec:authorize="isAuthenticated()">
                         <a class="nav-link" th:href="@{/reviews/submit}">+ Write Review</a>
                     </li>
                     <li class="nav-item" sec:authorize="isAuthenticated()">
@@ -38,7 +41,61 @@
             </div>
         </div>
     </nav>
-
+    <div class="bg-white border-bottom px-3 py-2">
+        <form method="get" th:action="@{/}" class="d-flex gap-2 flex-wrap align-items-end">
+            <div>
+                <label class="form-label small mb-1 fw-semibold">Search</label>
+                <input type="text" name="search" class="form-control form-control-sm" th:value="${search}"
+                    placeholder="Address or Eircode..." style="width:200px;"/>
+            </div>
+            <div>
+                <label class="form-label small mb-1 fw-semibold">County</label>
+                <select name="county" class="form-select form-select-sm" style="width:150px;">
+                    <option value="">All Counties</option>
+                    <option value="Carlow" th:selected="${county == 'Carlow'}">Carlow</option>
+                    <option value="Cavan" th:selected="${county == 'Cavan'}">Cavan</option>
+                    <option value="Clare" th:selected="${county == 'Clare'}">Clare</option>
+                    <option value="Cork" th:selected="${county == 'Cork'}">Cork</option>
+                    <option value="Donegal" th:selected="${county == 'Donegal'}">Donegal</option>
+                    <option value="Dublin" th:selected="${county == 'Dublin'}">Dublin</option>
+                    <option value="Galway" th:selected="${county == 'Galway'}">Galway</option>
+                    <option value="Kerry" th:selected="${county == 'Kerry'}">Kerry</option>
+                    <option value="Kildare" th:selected="${county == 'Kildare'}">Kildare</option>
+                    <option value="Kilkenny" th:selected="${county == 'Kilkenny'}">Kilkenny</option>
+                    <option value="Laois" th:selected="${county == 'Laois'}">Laois</option>
+                    <option value="Leitrim" th:selected="${county == 'Leitrim'}">Leitrim</option>
+                    <option value="Limerick" th:selected="${county == 'Limerick'}">Limerick</option>
+                    <option value="Longford" th:selected="${county == 'Longford'}">Longford</option>
+                    <option value="Louth" th:selected="${county == 'Louth'}">Louth</option>
+                    <option value="Mayo" th:selected="${county == 'Mayo'}">Mayo</option>
+                    <option value="Meath" th:selected="${county == 'Meath'}">Meath</option>
+                    <option value="Monaghan" th:selected="${county == 'Monaghan'}">Monaghan</option>
+                    <option value="Offaly" th:selected="${county == 'Offaly'}">Offaly</option>
+                    <option value="Roscommon" th:selected="${county == 'Roscommon'}">Roscommon</option>
+                    <option value="Sligo" th:selected="${county == 'Sligo'}">Sligo</option>
+                    <option value="Tipperary" th:selected="${county == 'Tipperary'}">Tipperary</option>
+                    <option value="Waterford" th:selected="${county == 'Waterford'}">Waterford</option>
+                    <option value="Westmeath" th:selected="${county == 'Westmeath'}">Westmeath</option>
+                    <option value="Wexford" th:selected="${county == 'Wexford'}">Wexford</option>
+                    <option value="Wicklow" th:selected="${county == 'Wicklow'}">Wicklow</option>
+                </select>
+            </div>
+            <div>
+                <label class="form-label small mb-1 fw-semibold">Property Type</label>
+                <select name="propertyType" class="form-select form-select-sm" style="width:150px;">
+                    <option value="">All Types</option>
+                    <option value="STUDIO" th:selected="${propertyType?.name() == 'STUDIO'}">Studio</option>
+                    <option value="ONE_BED" th:selected="${propertyType?.name() == 'ONE_BED'}">1 Bedroom</option>
+                    <option value="TWO_BED" th:selected="${propertyType?.name() == 'TWO_BED'}">2 Bedrooms</option>
+                    <option value="THREE_PLUS" th:selected="${propertyType?.name() == 'THREE_PLUS'}">3+ Bedrooms</option>
+                </select>
+            </div>
+            <div>
+                <button type="submit" class="btn btn-success btn-sm">Filter</button>
+                <a th:href="@{/}" class="btn btn-outline-secondary btn-sm ms-1">Reset</a>
+            </div>
+        </form>
+    </div>
     <div class="d-flex align-items-center px-3 py-2 border-bottom bg-light gap-2">
         <button class="btn btn-sm btn-dark" id="btnMap" onclick="switchView('map')">
             <i class="bi bi-map"></i> Map View

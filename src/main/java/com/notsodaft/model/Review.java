@@ -38,6 +38,8 @@ public class Review{
 
     @Column(length = 2000)
     private String reviewText;
+    private String proofFileName;
+    private String proofFilePath;
 
     @Enumerated(EnumType.STRING)
     private ReviewStatus status = ReviewStatus.PENDING;
@@ -46,6 +48,13 @@ public class Review{
 
     public enum ReviewStatus{
         PENDING, APPROVED, REJECTED
+    }
+
+    @Enumerated(EnumType.STRING)
+    private PropertyType propertyType;
+
+    public enum PropertyType{
+        STUDIO, ONE_BED, TWO_BED, THREE_PLUS
     }
 
     public Long getId(){ return id; }
@@ -76,4 +85,10 @@ public class Review{
     public LocalDateTime getCreatedAt(){ return createdAt; }
     public List<ReviewPhoto> getPhotos(){ return photos; }
     public void setPhotos(List<ReviewPhoto> photos){ this.photos = photos; }
+    public String getProofFileName(){ return proofFileName; }
+    public void setProofFileName(String proofFileName){ this.proofFileName = proofFileName; }
+    public String getProofFilePath(){ return proofFilePath; }
+    public void setProofFilePath(String proofFilePath){ this.proofFilePath = proofFilePath; }
+    public PropertyType getPropertyType(){ return propertyType; }
+    public void setPropertyType(PropertyType propertyType){ this.propertyType = propertyType; }
 }

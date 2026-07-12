@@ -115,6 +115,12 @@
                         class="rounded"
                         style="height: 80px; width: 80px; object-fit: cover;"/>
                 </div>
+                <div th:if="${review.proofFilePath != null}" class="mt-2">
+                    <span class="small text-muted fw-semibold">Proof of Residence:</span>
+                    <a th:href="${review.proofFilePath}" target="_blank" class="btn btn-outline-secondary btn-sm ms-2">
+                        <i class="bi bi-file-earmark"></i> View Document
+                    </a>
+                </div>
             </div>
             <div class="mt-2">
                 <a th:href="@{/admin/reviews/{id}/edit(id=${review.id})}"

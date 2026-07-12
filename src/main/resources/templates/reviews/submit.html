@@ -90,6 +90,16 @@
                                 </select>
                                 <input type="hidden" id="countyHidden" name="county"/>
                             </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Property Type</label>
+                                <select name="propertyType" class="form-select" required>
+                                    <option value="">Select type...</option>
+                                    <option value="STUDIO">Studio</option>
+                                    <option value="ONE_BED">1 Bedroom</option>
+                                    <option value="TWO_BED">2 Bedrooms</option>
+                                    <option value="THREE_PLUS">3+ Bedrooms</option>
+                                </select>
+                            </div>
                             <hr/>
                             <h6 class="fw-bold mb-3">Rate the Property</h6>
                             <div class="mb-3">
@@ -151,6 +161,18 @@
                                 <label class="form-label fw-semibold">Photos <span class="text-muted small">(optional, up to 5)</span></label>
                                 <input type="file" name="photos" class="form-control" multiple accept="image/*"/>
                                 <div class="form-text">JPG, PNG, max 10MB each</div>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold">
+                                    Proof of Residence <span class="text-danger">*</span>
+                                    <span class="text-muted small">(lease agreement, utility bill, etc.)</span>
+                                </label>
+                                <input type="file" name="proofDoc" class="form-control" required
+                                    accept=".pdf,.jpg,.jpeg,.png"/>
+                                <div class="form-text">
+                                    This document is <strong>private</strong> — only visible to you and admins.
+                                    PDF, JPG or PNG, max 10MB.
+                                </div>
                             </div>
                             <button type="submit" class="btn btn-success w-100">
                                 Submit for Review
@@ -273,6 +295,12 @@
         }
         return confirm('Submit this review for admin approval?');
     }
+
+    document.getElementById('eircodeInput').addEventListener('input', function() {
+        if (document.getElementById('latInput').value) {
+            clearLocation();
+        }
+    });
     </script>
     </body>
 </html>
