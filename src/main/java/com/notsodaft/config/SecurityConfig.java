@@ -1,6 +1,5 @@
 package com.notsodaft.config;
 
-import com.notsodaft.service.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -8,6 +7,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+
+import com.notsodaft.service.UserService;
 
 @Configuration
 @EnableWebSecurity
@@ -25,7 +26,7 @@ public class SecurityConfig{
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
         http
             .csrf(csrf -> csrf.disable()).authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/properties", "/properties/**", "/register", "/login", "/css/**", "/js/**").permitAll()
+                .requestMatchers("/", "/properties", "/properties/**", "/register", "/login", "/css/**", "/js/**", "/reviews/*/comments").permitAll()
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .requestMatchers("/", "/uploads/**", "/register", "/login", "/css/**", "/js/**").permitAll()
                 .requestMatchers("/reviews/my", "/reviews/*/edit").authenticated()

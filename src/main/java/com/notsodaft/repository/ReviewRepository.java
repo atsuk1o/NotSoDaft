@@ -13,8 +13,8 @@ public interface ReviewRepository extends JpaRepository<Review, Long>{
     @Query("SELECT r FROM Review r WHERE r.status = 'APPROVED' " +
         "AND (:county IS NULL OR r.county = :county) " +
         "AND (:propertyType IS NULL OR r.propertyType = :propertyType) " +
-        "AND (:search IS NULL OR LOWER(r.address) LIKE LOWER(CONCAT('%', :search, '%')) " +
-        "OR LOWER(r.eircode) LIKE LOWER(CONCAT('%', :search, '%')))")
+        "AND (:search IS NULL OR (LOWER(r.address) LIKE LOWER(CONCAT('%', :search, '%')) " +
+        "OR LOWER(r.eircode) LIKE LOWER(CONCAT('%', :search, '%'))))")
     List<Review> findApprovedWithFilters(
     @Param("county") String county,
     @Param("propertyType") Review.PropertyType propertyType,

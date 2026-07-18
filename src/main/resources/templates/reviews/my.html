@@ -8,21 +8,7 @@
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"/>
     </head>
     <body class="bg-light">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container-fluid">
-            <a class="navbar-brand fw-bold" th:href="@{/}">NotSoDaft</a>
-            <div class="collapse navbar-collapse">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" th:href="@{/reviews/submit}">+ Write Review</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#" onclick="confirmLogout(event)">Logout</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+    <nav th:replace="~{fragments :: navbar}"></nav>
 
     <div class="container mt-4">
         <h4 class="fw-bold mb-4">My Reviews</h4>

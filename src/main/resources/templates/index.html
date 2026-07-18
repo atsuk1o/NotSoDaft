@@ -14,33 +14,7 @@
     </head>
     <body>
 
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container-fluid">
-            <a class="navbar-brand fw-bold" th:href="@{/}">NotSoDaft</a>
-            <div class="collapse navbar-collapse">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item" sec:authorize="hasRole('ADMIN')">
-                        <a class="nav-link" th:href="@{/admin/dashboard}">Admin</a>
-                    </li>
-                    <li class="nav-item" sec:authorize="isAuthenticated()">
-                        <a class="nav-link" th:href="@{/reviews/my}">My Reviews</a>
-                    </li>
-                    <li class="nav-item" sec:authorize="isAuthenticated()">
-                        <a class="nav-link" th:href="@{/reviews/submit}">+ Write Review</a>
-                    </li>
-                    <li class="nav-item" sec:authorize="isAuthenticated()">
-                        <a class="nav-link" href="#" onclick="confirmLogout(event)">Logout</a>
-                    </li>
-                    <li class="nav-item" sec:authorize="!isAuthenticated()">
-                        <a class="nav-link" th:href="@{/login}">Login</a>
-                    </li>
-                    <li class="nav-item" sec:authorize="!isAuthenticated()">
-                        <a class="nav-link btn btn-success text-white px-3 ms-2" th:href="@{/register}">Register</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+    <nav th:replace="~{fragments :: navbar}"></nav>
     <div class="bg-white border-bottom px-3 py-2">
         <form method="get" th:action="@{/}" class="d-flex gap-2 flex-wrap align-items-end">
             <div>
@@ -94,6 +68,7 @@
                 <button type="submit" class="btn btn-success btn-sm">Filter</button>
                 <a th:href="@{/}" class="btn btn-outline-secondary btn-sm ms-1">Reset</a>
             </div>
+            <input type="hidden" name="view" id="viewInput" value="map"/>
         </form>
     </div>
     <div class="d-flex align-items-center px-3 py-2 border-bottom bg-light gap-2">
@@ -132,6 +107,7 @@
     <script th:inline="javascript">
         const reviews = /*[[${reviewsJson}]]*/ '[]';
         const parsedReviews = JSON.parse(reviews);
+        const currentView = /*[[${param.view != null ? param.view[0] : 'map'}]]*/ 'map';
 
         function confirmLogout(e) {
             e.preventDefault();

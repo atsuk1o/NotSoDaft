@@ -8,21 +8,7 @@
     <link rel="stylesheet" th:href="@{/css/style.css}"/>
 </head>
 <body class="bg-light">
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand fw-bold" th:href="@{/}">NotSoDaft</a>
-        <div class="collapse navbar-collapse">
-            <ul class="navbar-nav ms-auto">
-                <li class="nav-item">
-                    <a class="nav-link" th:href="@{/login}">Login</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link btn btn-success text-white px-3 ms-2" th:href="@{/register}">Register</a>
-                </li>
-            </ul>
-        </div>
-    </div>
-</nav>
+<nav th:replace="~{fragments :: navbar}"></nav>
 
 <div class="container mt-5">
     <div class="row justify-content-center">

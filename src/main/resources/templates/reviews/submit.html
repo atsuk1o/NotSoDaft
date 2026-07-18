@@ -9,11 +9,7 @@
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
     </head>
     <body class="bg-light">
-    <nav class="navbar navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand fw-bold" th:href="@{/}">NotSoDaft</a>
-        </div>
-    </nav>
+    <nav th:replace="~{fragments :: navbar}"></nav>
 
     <div class="container mt-5 mb-5">
         <div class="row justify-content-center">

@@ -197,6 +197,7 @@ function submitComment(e, reviewId) {
 }
 
 function switchView(view) {
+    document.getElementById('viewInput').value = view;
     if (view === 'map') {
         document.getElementById('mapView').style.display = 'block';
         document.getElementById('gridView').style.display = 'none';
@@ -214,3 +215,7 @@ function switchView(view) {
 
 renderMarkers(parsedReviews);
 renderGrid(parsedReviews);
+
+if(currentView === 'grid'){
+    switchView('grid');
+}
