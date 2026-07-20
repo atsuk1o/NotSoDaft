@@ -22,19 +22,15 @@ public class SecurityConfig{
         this.passwordEncoder = passwordEncoder;
     }
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
-        http
-            .csrf(csrf -> csrf.disable()).authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/properties", "/properties/**", "/register", "/login", "/css/**", "/js/**", "/reviews/*/comments").permitAll()
-                .requestMatchers("/admin/**").hasRole("ADMIN")
-                .requestMatchers("/", "/uploads/**", "/register", "/login", "/css/**", "/js/**").permitAll()
-                .requestMatchers("/reviews/my", "/reviews/*/edit").authenticated()
-                .requestMatchers("/proof/**").authenticated()
-                .anyRequest().authenticated()
-            ).formLogin(form -> form.loginPage("/login").defaultSuccessUrl("/", true).permitAll()).logout(logout -> logout.logoutSuccessUrl("/").permitAll());
-        return http.build();
-    }
+@Bean
+public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
+    http.csrf(csrf -> csrf.disable()).authorizeHttpRequests(auth -> auth.requestMatchers("/", "/register", "/login",
+                             "/css/**", "/js/**", "/uploads/**",
+                             "/reviews/*/comments",
+                             "/forgot-password", "/reset-password",
+                             "/proof/**").permitAll().requestMatchers("/admin/**").hasRole("ADMIN") .anyRequest().authenticated()).formLogin(form -> form.loginPage("/login").defaultSuccessUrl("/", true).permitAll()).logout(logout -> logout.logoutSuccessUrl("/").permitAll());
+    return http.build();
+}
 
     @Bean
     public DaoAuthenticationProvider authProvider(){

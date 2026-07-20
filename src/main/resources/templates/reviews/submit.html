@@ -1,13 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-    <head>
-        <meta charset="UTF-8"/>
-        <meta name="viewport" content="width=device-width, initial-scale=1"/>
-        <title>Submit Review - NotSoDaft</title>
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"/>
-        <link rel="stylesheet" th:href="@{/css/style.css}"/>
-        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-    </head>
+    <head th:replace="~{fragments :: head('Submit Review')}"></head>
     <body class="bg-light">
     <nav th:replace="~{fragments :: navbar}"></nav>
 
@@ -204,7 +197,7 @@
     function lookupAddress() {
         const address = document.getElementById('addressInput').value.trim();
         if (!address) {
-            alert('Please enter an address first.');
+            showAlert('Missing Address', 'Please enter an address first.');
             return;
         }
 
@@ -213,7 +206,7 @@
             .then(res => res.json())
             .then(data => {
                 if (data.length === 0) {
-                    alert('Address not found. Please try a more specific address.');
+                    showAlert('Not Found', 'Address not found. Please try a more specific address.');
                     return;
                 }
                 const lat = parseFloat(data[0].lat);
@@ -268,7 +261,7 @@
                     miniMarker.setLatLng([lat, lng]);
                 }
                 setTimeout(() => miniMap.invalidateSize(), 100);
-            }).catch(() => alert('Error looking up address. Please try again.'));
+            }).catch(() => showAlert('Error', 'Error looking up address. Please try again.'));
     }
 
     function clearLocation() {
@@ -285,11 +278,11 @@
 
     function confirmSubmit() {
         const lat = document.getElementById('latInput').value;
-        if (!lat) {
-            alert('Please click "Find" to verify your Eircode location on the map first.');
+        if (!lat){
+            showAlert('Location Required', 'Please click "Find" to verify your address on the map first.');
             return false;
         }
-        return confirm('Submit this review for admin approval?');
+        return true;
     }
 
     document.getElementById('eircodeInput').addEventListener('input', function() {
@@ -298,5 +291,8 @@
         }
     });
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <div th:replace="~{fragments :: modals}"></div>
+    <div th:replace="~{fragments :: scripts}"></div>
     </body>
 </html>
