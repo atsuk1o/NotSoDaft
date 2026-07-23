@@ -83,6 +83,7 @@ public class Review{
     public ReviewStatus getStatus(){ return status; }
     public void setStatus(ReviewStatus status){ this.status = status; }
     public LocalDateTime getCreatedAt(){ return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt){ this.createdAt = createdAt; }
     public List<ReviewPhoto> getPhotos(){ return photos; }
     public void setPhotos(List<ReviewPhoto> photos){ this.photos = photos; }
     public String getProofFileName(){ return proofFileName; }

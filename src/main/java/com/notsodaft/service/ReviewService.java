@@ -4,6 +4,10 @@ import com.notsodaft.model.Review;
 import com.notsodaft.repository.ReviewRepository;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
+import java.time.LocalDateTime;
 
 @Service
 public class ReviewService{
@@ -70,4 +74,27 @@ public class ReviewService{
             (search != null && !search.isEmpty()) ? search : null
         );
     }
+
+    public List<Review> getSmartFeed(){
+    List<Review> result = new ArrayList<>();
+    Set<Long> seen = new HashSet<>();
+
+    List<Review> popular = reviewRepository.findPopularReviews(
+        LocalDateTime.now().minusHours(48)
+    );
+    for (Review r : popular){
+        if (seen.add(r.getId())) result.add(r);
+        if (result.size() >= 50) return result;
+    }
+
+    List<Review> newest = reviewRepository.findByStatusOrderByCreatedAtDesc(
+        Review.ReviewStatus.APPROVED
+    );
+    for (Review r : newest){
+        if (seen.add(r.getId())) result.add(r);
+        if (result.size() >= 50) return result;
+    }
+
+    return result;
+}
 }

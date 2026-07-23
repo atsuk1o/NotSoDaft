@@ -21,22 +21,34 @@ public class PropertyController {
         this.objectMapper = objectMapper;
     }
 
-   @GetMapping("/")
-    public String index(
-            @RequestParam(required = false) String search,
-            @RequestParam(required = false) String county,
-            @RequestParam(required = false) Review.PropertyType propertyType,
-            Model model) {
-        
-        try {
-            List<Review> reviews = reviewService.getApprovedWithFilters(county, propertyType, search);
-            
+    @GetMapping("/")
+    public String index(@RequestParam(required = false) String county,
+                        @RequestParam(required = false) String propertyType,
+                        @RequestParam(required = false) String search,
+                        @RequestParam(required = false) String view,
+                        Model model){
+        try{
+            List<Review> reviews;
+            boolean isFiltered = (county != null && !county.isEmpty()) ||
+                                (propertyType != null && !propertyType.isEmpty()) ||
+                                (search != null && !search.isEmpty());
+
+            if (isFiltered){
+                Review.PropertyType type = null;
+                if (propertyType != null && !propertyType.isEmpty()){
+                    type = Review.PropertyType.valueOf(propertyType);
+                }
+                reviews = reviewService.getApprovedWithFilters(county, type, search);
+            } else {
+                reviews = reviewService.getSmartFeed();
+            }
+
             model.addAttribute("reviewsJson", objectMapper.writeValueAsString(reviews));
-            model.addAttribute("search", search);
             model.addAttribute("county", county);
-            model.addAttribute("propertyType", propertyType);
-            
-        } catch (Exception e) {
+            model.addAttribute("search", search);
+            model.addAttribute("propertyType", propertyType != null && !propertyType.isEmpty()
+                ? Review.PropertyType.valueOf(propertyType) : null);
+        } catch(Exception e){
             model.addAttribute("reviewsJson", "[]");
         }
         return "index";
